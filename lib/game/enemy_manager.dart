@@ -7,12 +7,12 @@ import 'package:redmtionfighter/game/game.dart';
 import 'package:redmtionfighter/game/knows_game_size.dart';
 
 class EnemyManager extends BaseComponent with KnowsGameSize, HasGameRef<SpaceScapeGame> {
-  late Timer timer;
+  late Timer _timer;
   SpriteSheet spriteSheet;
   Random random = Random();
 
   EnemyManager({required this.spriteSheet}) : super() {
-    timer = Timer(1, callback: _spawnEnemy, repeat: true);
+    _timer = Timer(1, callback: _spawnEnemy, repeat: true);
   }
 
   void _spawnEnemy() {
@@ -23,7 +23,7 @@ class EnemyManager extends BaseComponent with KnowsGameSize, HasGameRef<SpaceSca
     position.clamp(Vector2.zero() + initaialSize / 2, gameSize - initaialSize / 2);
 
     Enemy enemy =
-        Enemy(sprite: this.spriteSheet.getSpriteById(6), position: position, size: initaialSize);
+        Enemy(sprite: this.spriteSheet.getSpriteById(12), position: position, size: initaialSize);
     enemy.anchor = Anchor.center;
     gameRef.add(enemy);
   }
@@ -31,18 +31,24 @@ class EnemyManager extends BaseComponent with KnowsGameSize, HasGameRef<SpaceSca
   @override
   void onMount() {
     super.onMount();
-    timer.start();
+    _timer.start();
   }
 
   @override
   void onRemove() {
     super.onRemove();
-    timer.stop();
+    _timer.stop();
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    timer.update(dt);
+    _timer.update(dt);
+  }
+
+
+  void reset () {
+    _timer.stop();
+    _timer.start();
   }
 }

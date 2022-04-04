@@ -6,6 +6,7 @@ import 'package:flame/extensions.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
+import 'package:redmtionfighter/game/command.dart';
 import 'package:redmtionfighter/game/enemy.dart';
 import 'package:redmtionfighter/game/game.dart';
 import 'package:redmtionfighter/game/knows_game_size.dart';
@@ -18,14 +19,18 @@ class Player extends SpriteComponent
 
   double _speed = 300;
 
-  int score = 0 ;
-  int health = 100;
+  int _score = 0;
 
+  int get score => _score;
+
+  int _health = 100;
+
+  int get health => _health;
 
   Random _random = Random();
 
   Vector2 getRandomVector() {
-    return (Vector2.random(_random)- Vector2(0.5,-1))*300;
+    return (Vector2.random(_random) - Vector2(0.5, -1)) * 300;
   }
 
   Player({
@@ -44,18 +49,13 @@ class Player extends SpriteComponent
   @override
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     super.onCollision(intersectionPoints, other);
-    if (other is Enemy)
-    {
+    if (other is Enemy) {
+      gameRef.camera.shake();
 
-
-gameRef.camera.shake();
-
-     health -=10;
-     if(health<=0)
-     {
-       health=0;
-     }
-
+      _health -= 10;
+      if (_health <= 0) {
+        _health = 0;
+      }
     }
   }
 
@@ -69,14 +69,16 @@ gameRef.camera.shake();
         particle: Particle.generate(
             count: 10,
             lifespan: 0.1,
-            generator: (i) => AcceleratedParticle(
-              acceleration: getRandomVector().toOffset(),
+            generator: (i) =>
+                AcceleratedParticle(
+                    acceleration: getRandomVector().toOffset(),
                     speed: getRandomVector().toOffset(),
-                    position: (this.position.clone() + Vector2 (0,this.size.y/3)).toOffset(),
+                    position: (this.position.clone() + Vector2(0, this.size.y / 3)).toOffset(),
                     child: CircleParticle(
-                  radius: 1,
-                  paint: Paint()..color = Colors.white,
-                ))));
+                      radius: 1,
+                      paint: Paint()
+                        ..color = Colors.white,
+                    ))));
     gameRef.add(particleComponent);
     super.update(dt);
   }
@@ -95,38 +97,56 @@ gameRef.camera.shake();
       bullet.anchor = Anchor.center;
       gameRef.add(bullet);
     }
+    if (event.id == 1 && event.event == ActionEvent.down) {
+      final command = Command<Enemy>(action: (enemy) {
+        enemy.destroy();
+      });
+
+      gameRef.addCommand(command);
+    }
   }
 
   @override
   void joystickChangeDirectional(JoystickDirectionalEvent event) {
     switch (event.directional) {
       case JoystickMoveDirectional.moveUp:
-        this.setMoveDirection(Vector2(0, -1));
+       setMoveDirection(Vector2(0, -1));
         break;
       case JoystickMoveDirectional.moveUpLeft:
-        this.setMoveDirection(Vector2(-1, -1));
+        setMoveDirection(Vector2(-1, -1));
         break;
       case JoystickMoveDirectional.moveUpRight:
-        this.setMoveDirection(Vector2(1, -1));
+        setMoveDirection(Vector2(1, -1));
         break;
       case JoystickMoveDirectional.moveRight:
-        this.setMoveDirection(Vector2(1, 0));
+        setMoveDirection(Vector2(1, 0));
         break;
       case JoystickMoveDirectional.moveDown:
-        this.setMoveDirection(Vector2(0, 1));
+        setMoveDirection(Vector2(0, 1));
         break;
       case JoystickMoveDirectional.moveDownRight:
-        this.setMoveDirection(Vector2(1, 1));
+      setMoveDirection(Vector2(1, 1));
         break;
       case JoystickMoveDirectional.moveDownLeft:
-        this.setMoveDirection(Vector2(-1, 1));
+       setMoveDirection(Vector2(-1, 1));
         break;
       case JoystickMoveDirectional.moveLeft:
-        this.setMoveDirection(Vector2(-1, 0));
+        setMoveDirection(Vector2(-1, 0));
         break;
       case JoystickMoveDirectional.idle:
-        this.setMoveDirection(Vector2.zero());
+       setMoveDirection(Vector2.zero());
         break;
     }
+  }
+
+  void addToScore(int point) {
+    _score += point;
+  }
+
+  void reset() {
+
+  _score = 0;
+  _health =  100;
+  position = gameRef.viewport.canvasSize / 2;
   }
 }

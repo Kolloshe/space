@@ -6,6 +6,7 @@ import 'package:flame/geometry.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart';
 import 'package:redmtionfighter/game/bullet.dart';
+import 'package:redmtionfighter/game/command.dart';
 import 'package:redmtionfighter/game/game.dart';
 import 'package:redmtionfighter/game/knows_game_size.dart';
 import 'package:redmtionfighter/game/player.dart';
@@ -38,24 +39,30 @@ class Enemy extends SpriteComponent
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     super.onCollision(intersectionPoints, other);
     if (other is Bullet || other is Player) {
-      this.remove();
-
-      gameRef.player.score += 1;
-
-      final particleComponent = ParticleComponent(
-          particle: Particle.generate(
-              count: 20,
-              lifespan: 0.1,
-              generator: (i) => AcceleratedParticle(
-                  acceleration: getRandomVector().toOffset(),
-                  speed: getRandomVector().toOffset(),
-                  position: this.position.clone().toOffset(),
-                  child: CircleParticle(
-                    radius: 1.5,
-                    paint: Paint()..color = Colors.white,
-                  ))));
-      gameRef.add(particleComponent);
+      destroy();
     }
+  }
+
+  void destroy() {
+         this.remove();
+
+    final command = Command<Player>(action: (player) {
+      player.addToScore(1);
+    });
+    gameRef.addCommand(command);
+    final particleComponent = ParticleComponent(
+        particle: Particle.generate(
+            count: 20,
+            lifespan: 0.1,
+            generator: (i) => AcceleratedParticle(
+                acceleration: getRandomVector().toOffset(),
+                speed: getRandomVector().toOffset(),
+                position: this.position.clone().toOffset(),
+                child: CircleParticle(
+                  radius: 1.5,
+                  paint: Paint()..color = Colors.white,
+                ))));
+    gameRef.add(particleComponent);
   }
 
   @override
