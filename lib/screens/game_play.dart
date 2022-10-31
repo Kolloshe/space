@@ -1,7 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:redmtionfighter/game/game.dart';
-import 'package:redmtionfighter/screens/main_menu.dart';
+import 'package:redmtionfighter/widgets/overlays/game_over_menu.dart';
 import 'package:redmtionfighter/widgets/overlays/pause_button.dart';
 import 'package:redmtionfighter/widgets/overlays/pausemenu.dart';
 
@@ -26,6 +26,10 @@ class GamePlay extends StatelessWidget {
                   ),
               PauseMenu.ID: (BuildContext context, SpaceScapeGame gameRef) =>
                   PauseMenu(
+                    gameRef: gameRef,
+                  ),
+              GameOverMenu.ID: (BuildContext context, SpaceScapeGame gameRef) =>
+                  GameOverMenu(
                     gameRef: gameRef,
                   ),
 
